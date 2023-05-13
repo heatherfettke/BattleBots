@@ -139,11 +139,11 @@ def djikstra(start, goal):
     for i in range(len(final_path)):
         final_path[i] = [final_path[i][1], final_path[i][0]]
 
-    return final_path
+    return final_path[1:]
 
 
 x, y, z = [0, 0, 0]
-x_offset, y_offset = [0,0]
+x_offset, y_offset = [15*0.26,5*0.26]
 
 def sub_position_handler(position_info):
     global x
@@ -151,8 +151,10 @@ def sub_position_handler(position_info):
     global x_offset
     global y_offset
     x, y, z = position_info
+    #print(f"{x} {y}")
     x = x + x_offset
     y = y + y_offset
+    print(f"{x} {y}")
     #print("chassis position: x:{0}, y:{1}, z:{2}".format(x, y, z))
 
 def sub_attitude_info_handler(attitude_info):
@@ -167,6 +169,7 @@ def move_between_coords(gx, gy, gz):
     unit_size = 0.26
     gx = gx*0.26
     gy = gy*0.26
+    print(f"moving to {gx}, {gy}")
     print(f"{x}, {y}, {z}")
     y_diff = y-gy
     if y_diff > unit_size:
@@ -186,14 +189,41 @@ def move_between_coords(gx, gy, gz):
         ep_chassis.move(x=0, y=0, z=180-z).wait_for_completed()
     ep_chassis.move(x=abs(x_diff), y=0, z=0).wait_for_completed()
     print(f"{x}, {y}, {z}")
-    ep_chassis.move(x=0.5, y=0, z=z-gz).wait_for_completed()
-    print(f"{x}, {y}, {z}")
+    if gz is not None:
+        ep_chassis.move(x=0.5, y=0, z=z-gz).wait_for_completed()
+        print(f"{x}, {y}, {z}")
+    ep_chassis.move(x=0, y=0, z=0).wait_for_completed()
+    return True
 
 def dodge(up_or_down, left_side):
     # up = true
     # left_side = true
     ep_chassis.move(x=0, y=-0.1 if up_or_down else 0.1, z=0).wait_for_completed()
     ep_chassis.move(x=-0.3 if left_side else 0.3).wait_for_completed()
+
+def path_and_move(goal):
+    global x
+    global y
+    print(f"x: {x}, y: {y}")
+    path = djikstra((round(x/0.26),round(y/0.26)),goal)
+    print(path)
+    while True:
+        reached_goal = False
+        for spot in path:
+            print(f"Moving to point: {spot}")
+            if not move_between_coords(spot[0], spot[1], None):
+                break
+            elif spot == goal:
+                reached_goal = True
+        if reached_goal:
+            print("Reached the end goal")
+            break
+        else:
+            path = djikstra((round(x/0.26),round(y/0.26)),goal)
+            print(f"New path: {path}")
+
+            
+        
 
 def calibrate(ep_camera, task):
     print("Calibrating")
@@ -282,6 +312,7 @@ if __name__ == '__main__':
 
     ep_chassis.sub_position(freq=10, callback=sub_position_handler)
     ep_chassis.sub_attitude(freq=10, callback=sub_attitude_info_handler)
+    time.sleep(1)
 
     csvfile = csv.reader(open('arena.csv', mode='r'))
     for row in csvfile:
@@ -296,7 +327,13 @@ if __name__ == '__main__':
         ep_gripper.open(power=50)
 
         # Find and move to lego pile
-        # djikstra([int(x/0.26), int(y/0.26)],[legox, legoy])
+        #path_and_move((9,4))
+        ep_chassis.move(x=1, y=0, z=0).wait_for_completed()
+        print("One")
+        ep_chassis.move(x=0, y=0, z=90).wait_for_completed()
+        print("Two")
+        ep_chassis.move(x=1, y=0, z=0).wait_for_completed()
+        print("Three")
         print("Calibrating and Moving towards the lego pile")
         #calibrate(ep_camera, 1)
 
@@ -306,6 +343,7 @@ if __name__ == '__main__':
         time.sleep(4)
         ep_gripper.pause()
 
+        """
         # Raise arm
         ep_arm.moveto(200, 20).wait_for_completed()
 
@@ -315,7 +353,7 @@ if __name__ == '__main__':
         print("Calibrating and Moving towards blue wall")
         #calibrate(ep_camera, 2)
         # Raise arm
-        ep_arm.moveto(200, 80).wait_for_completed()
+        #ep_arm.moveto(200, 80).wait_for_completed()
         # Move closer
         print("Moving closer to blue wall")
         ep_chassis.move(x=0.366, y=0, z=0, xy_speed=0.3).wait_for_completed()
@@ -331,6 +369,7 @@ if __name__ == '__main__':
 
 
         # Back to square one
+        """
     
     ep_chassis.unsub_position()
     ep_chassis.unsub_attitude()
