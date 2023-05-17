@@ -7,6 +7,8 @@ from robomaster import camera
 import csv
 from heapdict import heapdict
 from matplotlib import pyplot as plt
+from ultralytics import YOLO
+
 
 maze = []
 maze_backup = []
@@ -307,6 +309,11 @@ def move_between_coords(gx, gy):
 
     return True
 
+model = YOLO('./runs/detect/yolov8n_custom12/weights/best.pt')  # load an official detection model
+def call_roboflow_api(img):
+    resp = model.predict(img,show=True)
+    return resp
+
 def path_and_move(goal):
     global x
     global y
@@ -437,11 +444,126 @@ def get_wall_specs(img):
     print(f"Angle: {angle} Dist: {dist}")
     return angle, dist
 
+
+def findcenter(contours):
+    center= []
+    leftTx = np.min(contours[0],axis=0)
+    leftTy = np.min(contours[0],axis=0)
+
+    rightTx = np.max(contours[0],axis=0)
+    Bottomy = np.max(contours[0],axis=0)
+    # print(Bottomy[0][1])
+    center.append((leftTx[0][0]+rightTx[0][0])/2)
+    center.append((leftTy[0][1]+Bottomy[0][1])/2)
+    return center
+
+def MoveToLego(image,center):
+    Tru_height = image.shape[0]/2
+    Tru_width = image.shape[1]/2
+    legodist = 247
+    if center[0] < Tru_width-20:
+            print("right rot")
+            return [-1,-2]
+            # ep_chassis.drive_speed(x=0, y=0, z=-3, timeout=None)
+    elif center[0] > Tru_width+20:
+            print("left rot")
+            return [1,-2]
+            # ep_chassis.drive_speed(x=-0, y=0, z=3, timeout=None)   
+    else:
+        if center[1] < legodist:
+            # ep_chassis.drive_speed(x=0.1, y=0, z=0, timeout=None)
+            return [0,1]
+        else:
+            return [0,0]
+            # ep_chassis.drive_speed(x=0, y=0, z=0, timeout=None)
+            # ep_gripper.close(power=50)
+            # time.sleep(1)
+            # ep_gripper.pause()
+            # exit(1)
+            # return
+
+
 def trackLego(img):
-    return [0, 0]
+    results = call_roboflow_api(img)
+    results = results[0]
+    boxes = results.boxes
+    # print(box.xywh)
+    tempx = [0,0]
+    # print("# of items detected: {}".format(len()))
+    if(len(boxes)!= 0):
+        box = boxes[0]  # returns one box
+        boxMem = box.xywh.cpu()
+        for index, detection in enumerate(boxes):
+            # print(detection.cls[0].item())
+            if(detection.cls[0].item() != 1 & index < len(boxes)):
+                position = [round(detection.xywh[0][0].item()), round(detection.xywh[0][1].item())]
+                if(position[1] > tempx[0]):                
+                    tempx = [position[1],index]
+        center = [boxes.xywh[tempx[1]][0].item(), boxes.xywh[tempx[1]][1].item()]
+    else: 
+         center =[0,0]
+
+    if not center:
+        print("object not detected")
+    else:
+        MoveToLego(img,center)
+
+
 
 def trackPlatform(img):
-    return [0, 0]
+    results = call_roboflow_api(img)
+    results = results[0]
+    print(results)
+    boxes = results.boxes
+    # print(box.xywh)][0
+    tempx = [0,0]
+    # print("# of items detected: {}".format(len())) //red goal 6 and 7 yellow goal 11
+    if(len(boxes)!= 0):
+        box = boxes[0]  # returns one box
+        boxMem = box.xywh.cpu()
+        for index, detection in enumerate(boxes):
+            print(detection.cls[0].item())
+            if(detection.cls[0].item() == 6.0 or detection.cls[0].item() == 7.0): #change for team red or yellow 
+                position = [round(detection.xywh[0][0].item()), round(detection.xywh[0][1].item())]
+                if(position[1] > tempx[0]):                
+                    tempx = [position[1],index]
+        if(tempx[0] == 0 & tempx[1] == 0):
+            center = [0,0]
+        else :
+                center = [boxes.xywh[tempx[1]][0].item(), boxes.xywh[tempx[1]][1].item()]
+    else: 
+         center =[0,0]
+    if not center:
+        print("object not detected")
+    else:
+        MovetoPlatform(img,center)
+
+
+def MovetoPlatform(image,center):
+    Tru_height = image.shape[0]/2
+    Tru_width = image.shape[1]/2
+    legodist = 383
+    if center[0] < Tru_width-20:
+            print("right rot")
+            return [-1,-2]
+            # ep_chassis.drive_speed(x=0, y=0, z=-3, timeout=None)
+    elif center[0] > Tru_width+20:
+            return [1,-2]
+            print("left rot")
+            # ep_chassis.drive_speed(x=-0, y=0, z=3, timeout=None)   
+    else:
+        if center[1] < legodist:
+            return [0,1]
+            # ep_chassis.drive_speed(x=0.1, y=0, z=0, timeout=None)
+        else:
+            return [0,0]
+            # time.sleep(0.2)
+            # ep_chassis.drive_speed(x=0, y=0, z=0, timeout=None)
+            # ep_gripper.open(power=50)
+            # time.sleep(1)
+            # ep_gripper.pause()
+            # exit(1)
+
 
 def calibrate(ep_camera, task):
     print("Calibrating")
