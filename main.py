@@ -175,19 +175,8 @@ def rotate(amt):
     ep_chassis.move(x=0, y=0, z=amt).wait_for_completed()
 
 
-def isBlock():
-    if True:
-        return False
-    else:
-        return True
 
-def isRobot():
-    if True:
-        return False
-    else:
-        return True
-
-def move_between_coords(gx, gy):
+def move_between_coords(gx, gy, epcamera):
     global x
     global y
     global z
@@ -314,7 +303,7 @@ def call_roboflow_api(img):
     resp = model.predict(img,show=True)
     return resp
 
-def path_and_move(goal):
+def path_and_move(goal,ep_camera):
     global x
     global y
     print(f"x: {x}, y: {y}, planning to {goal}")
@@ -324,7 +313,7 @@ def path_and_move(goal):
         reached_goal = False
         for spot in path:
             print(f"Moving to point: {spot}")
-            if not move_between_coords(spot[0], spot[1]):
+            if not move_between_coords(spot[0], spot[1], ep_camera):
                 break
             elif spot == goal:
                 reached_goal = True
@@ -483,7 +472,8 @@ def MoveToLego(image,center):
             # return
 
 BlockVal = 0
-def findBox(img):
+def isBlock(ep_camera):
+    img = ep_camera.read_cv2_image(strategy="newest", timeout=0.5)
     results = call_roboflow_api(img)
     results = results[0]
     print(results)
@@ -523,7 +513,8 @@ def findBox(img):
 
 
 RobotVal = 0
-def findrobot(img):
+def isrobot(ep_camera):
+    img = ep_camera.read_cv2_image(strategy="newest", timeout=0.5)
     results = call_roboflow_api(img)
     results = results[0]
     # print(results)
@@ -854,7 +845,7 @@ if __name__ == '__main__':
         ep_arm.moveto(160, -10).wait_for_completed()
 
         # Move to platform
-        path_and_move(platform)
+        path_and_move(platform, ep_camera)
 
         # Calibrate on platform
         calibrate(ep_camera, 3)
