@@ -482,6 +482,84 @@ def MoveToLego(image,center):
             # exit(1)
             # return
 
+BlockVal = 0
+def findBox(img):
+    results = call_roboflow_api(img)
+    results = results[0]
+    print(results)
+    global BlockVal
+    boxes = results.boxes
+    # print(box.xywh)][0
+    tempx = [0,0]
+    # print("# of items detected: {}".format(len())) //red goal 6 and 7 yellow goal 11
+    if(len(boxes)!= 0):
+        box = boxes[0]  # returns one box
+        boxMem = box.xywh.cpu()
+        for index, detection in enumerate(boxes):
+            print(detection.cls[0].item())
+            if(detection.cls[0].item() == 10.0): #change for team red or yellow 
+                position = [round(detection.xywh[0][0].item()), round(detection.xywh[0][1].item())]
+                if(position[1] > tempx[0]):                
+                    tempx = [position[1],index]
+        if(tempx[0] == 0 & tempx[1] == 0):
+            center = [0,0]
+        else :
+                center = [boxes.xywh[tempx[1]][0].item(), boxes.xywh[tempx[1]][1].item()]
+    else: 
+         center =[0,0]
+
+
+    Tru_width = img.shape[1]/2
+    legodist = 141
+    if center[1] > legodist:
+        BlockVal += 1
+        if (BlockVal > 5):
+            print("block infront")
+            return True
+    else:
+        BlockVal = 0
+        # print("all clear")
+        return False
+
+
+RobotVal = 0
+def findrobot(img):
+    results = call_roboflow_api(img)
+    results = results[0]
+    # print(results)
+    global RobotVal
+    boxes = results.boxes
+    # print(box.xywh)][0
+    tempx = [0,0]
+    # print("# of items detected: {}".format(len())) //red goal 6 and 7 yellow goal 11
+    if(len(boxes)!= 0):
+        box = boxes[0]  # returns one box
+        boxMem = box.xywh.cpu()
+        for index, detection in enumerate(boxes):
+            print(detection.cls[0].item())
+            if(detection.cls[0].item() == 9.0): #change for team red or yellow 
+                position = [round(detection.xywh[0][0].item()), round(detection.xywh[0][1].item())]
+                if(position[1] > tempx[0]):                
+                    tempx = [position[1],index]
+        if(tempx[0] == 0 & tempx[1] == 0):
+            center = [0,0]
+        else :
+                center = [boxes.xywh[tempx[1]][0].item(), boxes.xywh[tempx[1]][1].item()]
+    else: 
+         center =[0,0]
+
+
+    Tru_width = img.shape[1]/2
+    legodist = 141
+    if center[1] > legodist:
+        RobotVal += 1
+        if (RobotVal > 10):
+            print("robot infront")
+            return True
+    else:
+        RobotVal = 0
+        # print("all clear")
+        return False
 
 def trackLego(img):
     results = call_roboflow_api(img)
@@ -506,7 +584,7 @@ def trackLego(img):
     if not center:
         print("object not detected")
     else:
-        MoveToLego(img,center)
+       return MoveToLego(img,center)
 
 
 
@@ -536,7 +614,7 @@ def trackPlatform(img):
     if not center:
         print("object not detected")
     else:
-        MovetoPlatform(img,center)
+       return MovetoPlatform(img,center)
 
 
 def MovetoPlatform(image,center):
