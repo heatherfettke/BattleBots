@@ -561,7 +561,7 @@ if __name__ == '__main__':
         # ---------------------------------------------
 
         # Set arm to start position (low enough to grab)
-        ep_arm.moveto(160, 0).wait_for_completed()
+        ep_arm.moveto(160, -20).wait_for_completed()
 
         # Open up gripper
         ep_gripper.open(power=50)
@@ -579,7 +579,7 @@ if __name__ == '__main__':
         ep_gripper.pause()
 
         # Raise arm
-        ep_arm.moveto(160, 10).wait_for_completed()
+        ep_arm.moveto(160, -10).wait_for_completed()
 
         # Escape Metal Bar Jail
         path_and_move((8,2))
@@ -633,7 +633,7 @@ if __name__ == '__main__':
         time.sleep(7)
 
         # Set arm to start position (low enough to grab)
-        ep_arm.moveto(160, 0).wait_for_completed()
+        ep_arm.moveto(160, -20).wait_for_completed()
 
         # Open up gripper
         ep_gripper.open(power=50)
@@ -651,7 +651,7 @@ if __name__ == '__main__':
         ep_gripper.pause()
 
         # Raise arm
-        ep_arm.moveto(160, 10).wait_for_completed()
+        ep_arm.moveto(160, -10).wait_for_completed()
 
         # Move to platform
         path_and_move(platform)
