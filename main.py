@@ -174,10 +174,16 @@ def rotate(amt):
 
 
 def isBlock():
-    return False
+    if True:
+        return False
+    else:
+        return True
 
 def isRobot():
-    return False
+    if True:
+        return False
+    else:
+        return True
 
 def move_between_coords(gx, gy):
     global x
@@ -261,7 +267,7 @@ def move_between_coords(gx, gy):
         while (isRobot()):
             print("Enemy Robot Spotted")
             time.sleep(1)
-        if(dist_sense < 450 or IsBlock()):
+        if(dist_sense < 450 or isBlock()):
             maze[gy][gx] = '1'
             print(maze)
             #dodge(False, False)
@@ -527,7 +533,7 @@ if __name__ == '__main__':
     # ---------------------------------------------
     # Things to change for side and robot
     # ---------------------------------------------
-    if True: # If on left side of arena
+    if False: # If on left side of arena
         x, y, z = [1, 8, 0]
         platform = (2,6)
     else:
@@ -539,7 +545,7 @@ if __name__ == '__main__':
     #R2Left (Robot 2 on left side of arena (left to viewer behind R2))
     #R2Right (Robot 2 on right side of arena (right to viewer behind R2))
 
-    csvfile = csv.reader(open('R1Left.csv', mode='r'))
+    csvfile = csv.reader(open('R2Right.csv', mode='r'))
     for row in csvfile:
         maze.append(row)
 
