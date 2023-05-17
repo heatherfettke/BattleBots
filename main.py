@@ -193,7 +193,7 @@ def move_between_coords(gx, gy):
     y_diff = gy - y
     x_diff = gx - x
 
-    unit_size = 0.28
+    unit_size = 0.272
     angle_diff = 0
     angle_correction = 0.75
 
@@ -545,7 +545,7 @@ if __name__ == '__main__':
     #R2Left (Robot 2 on left side of arena (left to viewer behind R2))
     #R2Right (Robot 2 on right side of arena (right to viewer behind R2))
 
-    csvfile = csv.reader(open('R2Right.csv', mode='r'))
+    csvfile = csv.reader(open('R1Right.csv', mode='r'))
     for row in csvfile:
         maze.append(row)
 
@@ -555,7 +555,6 @@ if __name__ == '__main__':
 
     # Robot 1:
     while (True):
-        """
         # ---------------------------------------------
         # ROBOT 1
         # ---------------------------------------------
@@ -567,7 +566,7 @@ if __name__ == '__main__':
         ep_gripper.open(power=50)
 
         # Find and move to lego pile
-        path_and_move((8,6))
+        path_and_move((8,5))
         
         #print("Calibrating and Moving towards the lego pile")
         calibrate(ep_camera, 1)
@@ -623,8 +622,8 @@ if __name__ == '__main__':
         #print(f"Finished {race_count} loop")
         #race_count += 1
         #time.sleep(3)
-        """
 
+        """
         # ---------------------------------------------
         # ROBOT 2
         # ---------------------------------------------
@@ -682,6 +681,7 @@ if __name__ == '__main__':
         #print(f"Finished {race_count} loop")
         #race_count += 1
         #time.sleep(3)
+        """
 
 
 
