@@ -1,0 +1,14 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 12
+names: ['block', 'blue', 'cone', 'green', 'metal barrier', 'orange', 'red goal', 'red', 'river', 'robot', 'storage cube', 'yellow goal']
+classes: []
+
+roboflow:
+  workspace: university-of-maryland-o6v9u
+  project: cmsc477_project3
+  version: 5
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/university-of-maryland-o6v9u/cmsc477_project3/dataset/5
