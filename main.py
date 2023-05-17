@@ -545,7 +545,7 @@ if __name__ == '__main__':
     #R2Left (Robot 2 on left side of arena (left to viewer behind R2))
     #R2Right (Robot 2 on right side of arena (right to viewer behind R2))
 
-    csvfile = csv.reader(open('R1Right.csv', mode='r'))
+    csvfile = csv.reader(open('R2Right.csv', mode='r'))
     for row in csvfile:
         maze.append(row)
 
@@ -555,6 +555,7 @@ if __name__ == '__main__':
 
     # Robot 1:
     while (True):
+        """
         # ---------------------------------------------
         # ROBOT 1
         # ---------------------------------------------
@@ -674,14 +675,11 @@ if __name__ == '__main__':
         # Lower arm
         ep_arm.moveto(200, 10).wait_for_completed()
 
-        # Update rotation
-        z = 180
-
         #ep_gripper.close(power=50)
         #print(f"Finished {race_count} loop")
         #race_count += 1
         #time.sleep(3)
-        """
+        #"""
 
 
 
